@@ -23,7 +23,7 @@ impl<
         T,
     > SixColor for RgbController<R, G, B>
 where
-T: From<u16>,
+    T: From<u16>,
 {
     fn red(&mut self) {
         let RgbController(r, _, _) = self;
