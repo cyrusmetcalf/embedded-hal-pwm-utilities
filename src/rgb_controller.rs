@@ -1,6 +1,10 @@
 use core::convert::From;
 use embedded_hal::PwmPin;
 
+pub trait RgbLed: embedded_hal::PwmPin {
+    fn set_color(&mut self, color: rgb::RGB<u16>);
+}
+
 pub trait SixColor: embedded_hal::PwmPin {
     fn red(&mut self);
     fn blue(&mut self);
@@ -10,6 +14,20 @@ pub trait SixColor: embedded_hal::PwmPin {
     fn cyan(&mut self);
 }
 
+impl<
+        R: embedded_hal::PwmPin<Duty = T>,
+        G: embedded_hal::PwmPin<Duty = T>,
+        B: embedded_hal::PwmPin<Duty = T>,
+        T,
+    > RgbLed for RgbController<R, G, B>
+where
+    T: From<u16>,
+{
+    fn set_color(&mut self, color: rgb::RGB<u16>) {
+        let color = (T::from(color.r), T::from(color.g), T::from(color.b));
+        self.set_duty(color);
+    }
+}
 pub struct RgbController<R: embedded_hal::PwmPin, G: embedded_hal::PwmPin, B: embedded_hal::PwmPin>(
     pub R,
     pub G,
@@ -73,12 +91,14 @@ impl<R: PwmPin, G: PwmPin, B: PwmPin> embedded_hal::PwmPin for RgbController<R, 
         green.disable();
         blue.disable();
     }
+
     fn enable(&mut self) {
         let RgbController(red, green, blue) = self;
         red.enable();
         green.enable();
         blue.enable();
     }
+
     fn get_duty(&self) -> Self::Duty {
         let RgbController(red, green, blue) = self;
         (red.get_duty(), green.get_duty(), blue.get_duty())
@@ -92,6 +112,7 @@ impl<R: PwmPin, G: PwmPin, B: PwmPin> embedded_hal::PwmPin for RgbController<R, 
             blue.get_max_duty(),
         )
     }
+
     fn set_duty(&mut self, duty: Self::Duty) {
         let (r, g, b) = duty;
         let RgbController(red, green, blue) = self;
