@@ -3,7 +3,7 @@ pub mod mock_pwm;
 use super::*;
 use embedded_hal::PwmPin;
 use mock_pwm::FakePwmPin;
-use rgb_controller::{RgbController, SixColor};
+use rgb_controller::{RgbLed, RgbController, SixColor};
 
 #[test]
 fn can_make_fake_pwm() {
@@ -131,4 +131,19 @@ fn can_set_magenta() {
     assert_eq!((0, 0, 0), light_controller.get_duty());
     light_controller.magenta();
     assert_eq!((red_max, 0, blue_max), light_controller.get_duty());
+}
+
+#[test]
+fn can_take_rgb() {
+    let (r, g, b) = (
+        FakePwmPin::default(),
+        FakePwmPin::default(),
+        FakePwmPin::default(),
+    );
+    let mut light_controller = RgbController(r, g, b);
+    light_controller.enable();
+
+    let setpoint = rgb::RGB::new(23,32,24);
+    light_controller.set_color(setpoint);
+    
 }
