@@ -1,5 +1,3 @@
-use embedded_hal::PwmPin;
-
 trait Servo: embedded_hal::PwmPin {
     type SetpointType;
     fn set_position(&mut self, position: Self::SetpointType);
@@ -8,8 +6,6 @@ trait Servo: embedded_hal::PwmPin {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
-
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
